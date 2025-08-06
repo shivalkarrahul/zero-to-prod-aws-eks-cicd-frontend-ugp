@@ -21,7 +21,7 @@ phases:
     commands:
       - echo "Syncing React build artifacts to S3 bucket $S3_BUCKET_NAME..."
       # Sync the 'build' directory content to the root of the S3 bucket
-      - aws s3 sync ./build s3://$S3_BUCKET_NAME --delete --acl public-read
+      - aws s3 sync ./build s3://$S3_BUCKET_NAME --delete public-read
       - echo "Finished syncing files to S3."
 
 artifacts:
