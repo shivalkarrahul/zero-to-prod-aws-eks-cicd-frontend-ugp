@@ -55,7 +55,7 @@ function App() {
       <div className="message-input">
         <input
           type="text"
-          placeholder="Write a message..."
+          placeholder="Write a message here"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
         />
