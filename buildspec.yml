@@ -1,0 +1,32 @@
+# `buildspec.yml` for the React frontend
+#
+# This buildspec builds the React app and syncs the output to the S3 bucket.
+
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "Installing Node.js dependencies..."
+      - npm install
+
+  build:
+    commands:
+      - echo "Building the React application..."
+      - npm run build
+
+  post_build:
+    commands:
+      - echo "Syncing React build artifacts to S3 bucket $S3_BUCKET_NAME..."
+      # Sync the 'build' directory content to the root of the S3 bucket
+      - aws s3 sync ./build s3://$S3_BUCKET_NAME --delete --acl public-read
+      - echo "Finished syncing files to S3."
+
+artifacts:
+  # The artifacts are directly deployed to S3 via 'aws s3 sync'
+  files:
+    - '**/*'
+  base-directory: 'build'
+  discard-paths: yes
