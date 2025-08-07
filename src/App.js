@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
   // IMPORTANT: Replace this with your actual NGINX Ingress Load Balancer URL.
   // For example: 'http://a90267d66fa484905b9b65d5675aae9c-214711102.us-east-1.elb.amazonaws.com'
   const backendApiBaseUrl = 'http://a90267d66fa484905b9b65d5675aae9c-214711102.us-east-1.elb.amazonaws.com';
-  const quotesApiUrl = `${backendApiBaseUrl}/quotes`;
+  const quotesApiUrl = `${backendApiBaseUrl}/messages`;
   
   function App() {
     const [quotes, setQuotes] = useState([]);
