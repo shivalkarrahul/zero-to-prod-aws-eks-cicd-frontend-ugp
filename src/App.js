@@ -1,107 +1,163 @@
 import React, { useState, useEffect } from 'react';
 
-function App() {
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-
-  // IMPORTANT: This URL is hardcoded here for S3 static hosting.
-  // When deploying to S3, environment variables (like process.env.REACT_APP_...)
-  // are typically baked into the JS during the build step.
-  // Replace this with your actual NGINX Ingress Load Balancer URL.
+  // IMPORTANT: Replace this with your actual NGINX Ingress Load Balancer URL.
+  // For example: 'http://a90267d66fa484905b9b65d5675aae9c-214711102.us-east-1.elb.amazonaws.com'
   const backendApiBaseUrl = 'http://a90267d66fa484905b9b65d5675aae9c-214711102.us-east-1.elb.amazonaws.com';
-
-  // Construct the full API URLs for messages and hello
-  const messagesApiUrl = `${backendApiBaseUrl}/messages`;
-  const helloApiUrl = `${backendApiBaseUrl}/api/hello`; // Assuming /api/hello is still available
-
-  useEffect(() => {
-    fetchMessages();
-    // Optional: You could also fetch from /api/hello here to test connectivity
-    // fetch(helloApiUrl).then(res => res.json()).then(data => console.log('Hello from backend:', data));
-  }, []);
-
-  const fetchMessages = async () => {
-    try {
-      const response = await fetch(messagesApiUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  const quotesApiUrl = `${backendApiBaseUrl}/quotes`;
+  
+  function App() {
+    const [quotes, setQuotes] = useState([]);
+    const [inputs, setInputs] = useState({ name: '', input1: '', input2: '', input3: '' });
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState('');
+  
+    // Fetch quotes on initial load
+    useEffect(() => {
+      if (backendApiBaseUrl) {
+        fetchQuotes();
+      } else {
+        setMessage('Please configure your backend API URL to fetch quotes.');
       }
-      const data = await response.json();
-      setMessages(data);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-      setMessages([{ id: 0, text: 'Could not load messages. Backend might be unavailable.' }]);
-    }
-  };
-
-  const handlePostMessage = async () => {
-    if (!newMessage.trim()) return;
-
-    try {
-      const response = await fetch(messagesApiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: newMessage }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    }, []);
+  
+    // Fetch all quotes from the backend
+    const fetchQuotes = async () => {
+      try {
+        const response = await fetch(quotesApiUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setQuotes(data);
+      } catch (error) {
+        console.error('Error fetching quotes:', error);
+        setMessage('Could not load quotes. Backend might be unavailable.');
       }
-
-      // Re-fetch all messages to ensure the list is up-to-date
-      await fetchMessages();
-      setNewMessage(''); // Clear input field
-    } catch (error) {
-      console.error('Error posting message:', error);
-      alert('Failed to post message. Please try again.');
-    }
-  };
-
-  return (
-    <div className="container" style={{ fontFamily: 'Inter, sans-serif', maxWidth: '600px', margin: '40px auto', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: '#ffffff' }}>
-      <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>EKS Guestbook</h1>
-      <div className="message-input" style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <input
-          type="text"
-          placeholder="Write a message here"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          style={{ flexGrow: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px' }}
-        />
-        <button
-          onClick={handlePostMessage}
-          style={{
-            padding: '10px 20px',
-            borderRadius: '8px',
-            border: 'none',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            fontSize: '16px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            transition: 'background-color 0.3s ease',
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
-        >
-          Post
-        </button>
-      </div>
-      <div className="message-list" style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
-        {messages.length > 0 ? (
-          messages.map((msg) => (
-            <div key={msg.id} className="message-item" style={{ padding: '12px 15px', marginBottom: '10px', backgroundColor: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              {msg.text}
+    };
+  
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setInputs(prevInputs => ({ ...prevInputs, [name]: value }));
+    };
+  
+    // Generate a new quote by sending data to the backend
+    const handleGenerateQuote = async () => {
+      const { name, input1, input2, input3 } = inputs;
+      if (!name.trim() || !input1.trim() || !input2.trim() || !input3.trim()) {
+        setMessage('Please fill in all four fields!');
+        return;
+      }
+  
+      setIsLoading(true);
+      setMessage('');
+  
+      try {
+        const response = await fetch(quotesApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, input1, input2, input3 }),
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        await fetchQuotes();
+        setInputs({ name: '', input1: '', input2: '', input3: '' });
+        setMessage('Quote generated successfully!');
+      } catch (error) {
+        console.error('Error generating quote:', error);
+        setMessage('Failed to generate quote. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100 font-sans">
+        <div className="w-full max-w-xl mx-auto p-8 rounded-2xl shadow-xl bg-white text-card-foreground">
+          <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-2">
+            Funny Quote Generator
+          </h1>
+          <p className="text-center text-gray-600 mb-8">
+            Enter your name and three fun words to generate a silly quote!
+          </p>
+  
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <input
+              type="text"
+              name="name"
+              placeholder="Enter your name"
+              value={inputs.name}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 text-lg rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              disabled={isLoading}
+            />
+            <input
+              type="text"
+              name="input1"
+              placeholder="Input 1 (e.g., 'grumpy cat')"
+              value={inputs.input1}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 text-lg rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              disabled={isLoading}
+            />
+            <input
+              type="text"
+              name="input2"
+              placeholder="Input 2 (e.g., 'meaning of life')"
+              value={inputs.input2}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 text-lg rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              disabled={isLoading}
+            />
+            <input
+              type="text"
+              name="input3"
+              placeholder="Input 3 (e.g., 'old sock')"
+              value={inputs.input3}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 text-lg rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              disabled={isLoading}
+            />
+          </div>
+          
+          <button
+            onClick={handleGenerateQuote}
+            disabled={isLoading}
+            className="w-full px-6 py-3 bg-blue-500 text-white text-lg font-bold rounded-xl shadow-md hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {isLoading ? 'Saving and Generating...' : 'Generate My Funny Quote'}
+          </button>
+  
+          {message && (
+            <div className={`mt-4 p-3 rounded-lg text-sm text-center ${message.includes('success') ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300'}`}>
+              {message}
             </div>
-          ))
-        ) : (
-          <p style={{ textAlign: 'center', color: '#666' }}>No messages yet. Be the first to post!</p>
-        )}
+          )}
+  
+          <hr className="my-8 border-gray-200" />
+  
+          <div className="quote-list p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">
+              Generated Quotes
+            </h2>
+            {quotes.length > 0 ? (
+              quotes.map((item) => (
+                <div key={item.id} className="p-4 mb-3 bg-blue-50 rounded-xl border border-blue-100 shadow-sm">
+                  <p className="m-0 text-gray-700">
+                    <span className="font-bold text-blue-600">{item.name}:</span> {item.quote}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No quotes yet. Generate one now!</p>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
-
-export default App;
+    );
+  }
+  
+  export default App;
+    
