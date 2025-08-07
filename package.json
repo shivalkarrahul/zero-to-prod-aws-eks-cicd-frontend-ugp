@@ -1,15 +1,19 @@
 {
-  "name": "ugp-eks-cicd-react-frontend",
+  "name": "your-react-app-name",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38"
   },
   "scripts": {
+    "build:css": "postcss src/index.css -o src/tailwind.css",
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run build:css && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

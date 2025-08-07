@@ -1,82 +1,9 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f4f7f6;
-  color: #333;
-}
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-#root {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-.container {
-  background-color: #ffffff;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 600px;
-  text-align: center;
-}
-
-h1 {
-  color: #2c3e50;
-  margin-bottom: 1.5rem;
-}
-
-.message-input {
-  display: flex;
-  margin-bottom: 1.5rem;
-}
-
-.message-input input {
-  flex-grow: 1;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-right: 0.5rem;
-  font-size: 1rem;
-}
-
-.message-input button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.25rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-.message-input button:hover {
-  background-color: #2980b9;
-}
-
-.message-list {
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.message-item {
-  background-color: #ecf0f1;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
-  border-radius: 5px;
-  text-align: left;
-  word-wrap: break-word;
-}
+/*
+ * You can add your own custom CSS here if you have to,
+ * but it's best to use Tailwind classes directly in your components.
+ */
