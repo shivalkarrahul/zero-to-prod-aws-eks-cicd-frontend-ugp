@@ -21,6 +21,7 @@ phases:
     commands:
       - echo "Building the React application..."
       - npm run build
+      - npm install react-icons
 
   post_build:
     commands:
