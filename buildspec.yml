@@ -11,6 +11,7 @@ phases:
     commands:
       - echo "Installing Node.js dependencies..."
       - npm install
+      - npm install react-icons      
 
   pre_build:
     commands:
@@ -21,7 +22,7 @@ phases:
     commands:
       - echo "Building the React application..."
       - npm run build
-      - npm install react-icons
+
 
   post_build:
     commands:
