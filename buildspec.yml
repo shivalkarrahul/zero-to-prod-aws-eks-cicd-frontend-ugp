@@ -1,39 +1,33 @@
-# `buildspec.yml` for the React frontend
-#
-# This buildspec builds the React app and syncs the output to the S3 bucket.
-
 version: 0.2
 
 phases:
+  # The 'install' phase is for installing all necessary dependencies.
   install:
-    runtime-versions:
-      nodejs: 18
     commands:
-      - echo "Installing Node.js dependencies..."
+      # This command installs all packages listed in your package.json,
+      # including axios and react-icons. It is crucial to run this
+      # before the build process starts.
+      - echo "Installing all npm dependencies..."
       - npm install
-      - npm install react-icons      
-
-  pre_build:
-    commands:
-      - echo "The backend API host is $REACT_APP_API_HOST"
-
-  # The 'build' phase actually builds the React application.
+  
+  # The 'build' phase is for compiling your code.
   build:
     commands:
-      - echo "Building the React application..."
-      - npm run build
+      # We chain the CSS build and the main React build together.
+      # The '&&' ensures that the React build will only run if the CSS build
+      # completes successfully.
+      - echo "Running the build command..."
+      - npm run build:css && react-scripts build
 
-
-  post_build:
-    commands:
+      # This command will sync your build artifacts to S3.
+      # Because it's in the 'build' phase and comes after the build command,
+      # it will only be executed if the 'npm run build' command is successful.
+      # This prevents the S3 bucket from being deleted on a build failure.
       - echo "Syncing React build artifacts to S3 bucket $S3_BUCKET_NAME..."
-      # Sync the 'build' directory content to the root of the S3 bucket
       - aws s3 sync ./build s3://$S3_BUCKET_NAME --delete
-      - echo "Finished syncing files to S3."
 
+# 'artifacts' defines which files to upload to S3 from the build.
 artifacts:
-  # The artifacts are directly deployed to S3 via 'aws s3 sync'
   files:
     - '**/*'
-  base-directory: 'build'
-  discard-paths: yes
+  base-directory: build
