@@ -12,6 +12,14 @@ phases:
       - echo "Installing Node.js dependencies..."
       - npm install
 
+  pre_build:
+    commands:
+      # This command prints the value of the environment variable to the logs.
+      # You can check the CodeBuild logs to confirm it's correct.
+      - echo "The backend API host is: $REACT_APP_API_HOST"
+      - echo "Building..."
+
+  # The 'build' phase actually builds the React application.
   build:
     commands:
       - echo "Building the React application..."
