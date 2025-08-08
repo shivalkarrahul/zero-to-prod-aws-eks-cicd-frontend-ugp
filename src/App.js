@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import QRCode from 'react-qr-code';
 
 // IMPORTANT: Replace this with your actual NGINX Ingress Load Balancer URL.
-const backendApiBaseUrl = 'http://a90267d66fa484905b9b65d5675aae9c-214711102.us-east-1.elb.amazonaws.com';
+const backendApiBaseUrl = process.env.REACT_APP_API_HOST || 'http://localhost:5000';
 const quotesApiUrl = `${backendApiBaseUrl}/messages`;
+
+console.log('Using backend API URL:', backendApiBaseUrl);
 
 function App() {
   const [quotes, setQuotes] = useState([]);
