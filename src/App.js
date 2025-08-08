@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import axios from 'axios';
-import { FaLaughSquint, FaHeart, FaSadTear, FaFrown, FaThumbsUp } from 'react-icons/fa';
+import { FaLaughSquint, FaHeart, FaSadTear, FaFrown, FaThumbsUp, FaThumbsDown, FaFlag } from 'react-icons/fa';
 import { Toaster, toast } from 'sonner';
 import QRCode from 'react-qr-code';
 
@@ -25,13 +25,15 @@ const App = () => {
   const [message, setMessage] = useState('');
   const [appUrl, setAppUrl] = useState('');
 
-  // Reaction icon map for easy rendering
+  // Reaction icon map for easy rendering with colors and hover colors
   const reactionIcons = {
-    laugh: FaLaughSquint,
-    love: FaHeart,
-    tears: FaSadTear,
-    sad: FaFrown,
-    like: FaThumbsUp,
+    laugh: { icon: FaLaughSquint, color: 'text-yellow-500', hoverColor: 'hover:text-yellow-600' },
+    love: { icon: FaHeart, color: 'text-red-500', hoverColor: 'hover:text-red-600' },
+    tears: { icon: FaSadTear, color: 'text-blue-500', hoverColor: 'hover:text-blue-600' },
+    sad: { icon: FaFrown, color: 'text-gray-500', hoverColor: 'hover:text-gray-600' },
+    like: { icon: FaThumbsUp, color: 'text-green-500', hoverColor: 'hover:text-green-600' },
+    downvote: { icon: FaThumbsDown, color: 'text-gray-400', hoverColor: 'hover:text-gray-500' },
+    report: { icon: FaFlag, color: 'text-red-600', hoverColor: 'hover:text-red-700' },
   };
 
   // Set the app URL once on component mount for the QR code
@@ -144,6 +146,23 @@ const App = () => {
     }
   };
 
+  // Logic to find the quote with the most total reactions
+  const findMostReactedQuoteId = () => {
+    let maxReactions = -1;
+    let mostReactedId = null;
+
+    quotes.forEach(quote => {
+      const totalReactions = Object.values(quote.reactions).reduce((sum, count) => sum + count, 0);
+      if (totalReactions > maxReactions) {
+        maxReactions = totalReactions;
+        mostReactedId = quote.id;
+      }
+    });
+    return mostReactedId;
+  };
+
+  const mostReactedQuoteId = findMostReactedQuoteId();
+
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100 font-sans">
       <div className="w-full max-w-xl mx-auto p-8 rounded-2xl shadow-xl bg-white text-card-foreground">
@@ -235,16 +254,20 @@ const App = () => {
           </h2>
           {quotes.length > 0 ? (
             quotes.map((item) => (
-              <div key={item.id} className="p-4 mb-3 bg-blue-50 rounded-xl border border-blue-100 shadow-sm">
+              <div 
+                key={item.id} 
+                className={`p-4 mb-3 rounded-xl border shadow-sm transition-all
+                  ${item.id === mostReactedQuoteId ? 'bg-purple-100 border-purple-400 ring-4 ring-purple-200' : 'bg-blue-50 border-blue-100'}`}
+              >
                 <p className="m-0 text-gray-700">
                   <span className="font-bold text-blue-600">{item.name}:</span> {item.quote}
                 </p>
                 <div className="flex space-x-4 mt-4">
-                  {Object.entries(reactionIcons).map(([reactionName, Icon]) => (
+                  {Object.entries(reactionIcons).map(([reactionName, { icon: Icon, color, hoverColor }]) => (
                     <button
                       key={reactionName}
                       onClick={() => handleReaction(item.id, reactionName)}
-                      className="flex items-center text-gray-500 hover:text-indigo-600 transition-colors"
+                      className={`flex items-center transition-colors ${color} ${hoverColor}`}
                     >
                       <Icon className="w-5 h-5 mr-1" />
                       <span className="text-sm font-medium">
