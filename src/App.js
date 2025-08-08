@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import axios from 'axios';
+import { FaLaughSquint, FaHeart, FaSadTear, FaFrown, FaThumbsUp } from 'react-icons/fa';
+import { Toaster, toast } from 'sonner';
 import QRCode from 'react-qr-code';
 
-// Get the API host from the environment variable.
+// The URL for your backend API
 let backendApiBaseUrl = process.env.REACT_APP_API_HOST || 'http://localhost:5000';
 
 // A crucial check: ensure the URL has a protocol.
@@ -10,17 +14,25 @@ let backendApiBaseUrl = process.env.REACT_APP_API_HOST || 'http://localhost:5000
 if (!backendApiBaseUrl.startsWith('http://') && !backendApiBaseUrl.startsWith('https://')) {
   backendApiBaseUrl = `http://${backendApiBaseUrl}`;
 }
-
 const quotesApiUrl = `${backendApiBaseUrl}/messages`;
 
 console.log('Using backend API URL:', backendApiBaseUrl);
 
-function App() {
+const App = () => {
   const [quotes, setQuotes] = useState([]);
   const [inputs, setInputs] = useState({ name: '', input1: '', input2: '', input3: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [appUrl, setAppUrl] = useState('');
+
+  // Reaction icon map for easy rendering
+  const reactionIcons = {
+    laugh: FaLaughSquint,
+    love: FaHeart,
+    tears: FaSadTear,
+    sad: FaFrown,
+    like: FaThumbsUp,
+  };
 
   // Set the app URL once on component mount for the QR code
   useEffect(() => {
@@ -28,6 +40,26 @@ function App() {
       setAppUrl(window.location.href);
     }
   }, []);
+
+  // Fetch all quotes from the backend
+  const fetchQuotes = async () => {
+    try {
+      const response = await axios.get(quotesApiUrl);
+      // Sanitize the incoming data to ensure all reaction counts are numbers
+      const sanitizedQuotes = response.data.map(quote => ({
+        ...quote,
+        reactions: Object.fromEntries(
+          Object.entries(quote.reactions || {}).map(([key, value]) => [key, Number(value)])
+        )
+      }));
+      setQuotes(sanitizedQuotes);
+      setMessage('');
+    } catch (error) {
+      toast.error('Failed to fetch quotes. Please check the backend connection.');
+      console.error('Error fetching quotes:', error);
+      setMessage('Could not load quotes. Backend might be unavailable.');
+    }
+  };
 
   // Fetch quotes on initial load
   useEffect(() => {
@@ -37,21 +69,6 @@ function App() {
       setMessage('Please configure your backend API URL to fetch quotes.');
     }
   }, []);
-
-  // Fetch all quotes from the backend
-  const fetchQuotes = async () => {
-    try {
-      const response = await fetch(quotesApiUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setQuotes(data);
-    } catch (error) {
-      console.error('Error fetching quotes:', error);
-      setMessage('Could not load quotes. Backend might be unavailable.');
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -70,24 +87,60 @@ function App() {
     setMessage('');
 
     try {
-      const response = await fetch(quotesApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, input1, input2, input3 }),
-      });
+      const response = await axios.post(quotesApiUrl, { name, input1, input2, input3 });
 
-      if (!response.ok) {
+      if (response.status !== 201) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       await fetchQuotes();
       setInputs({ name: '', input1: '', input2: '', input3: '' });
-      setMessage('Quote generated successfully!');
+      toast.success('Quote generated and posted!');
     } catch (error) {
       console.error('Error generating quote:', error);
-      setMessage('Failed to generate quote. Please try again.');
+      toast.error('Failed to generate quote. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Correctly handle a reaction click
+  const handleReaction = async (quoteId, reactionName) => {
+    // Optimistic UI update: Immediately increment the count on the client
+    setQuotes(prevQuotes =>
+      prevQuotes.map(quote =>
+        quote.id === quoteId
+          ? {
+              ...quote,
+              reactions: {
+                ...quote.reactions,
+                [reactionName]: (quote.reactions[reactionName] || 0) + 1,
+              },
+            }
+          : quote
+      )
+    );
+
+    // Send the update to the backend in the background
+    try {
+      await axios.put(`${quotesApiUrl}/${quoteId}/react`, { reaction: reactionName });
+    } catch (error) {
+      // Revert the optimistic update if the API call fails
+      toast.error('Failed to update reaction.');
+      setQuotes(prevQuotes =>
+        prevQuotes.map(quote =>
+          quote.id === quoteId
+            ? {
+                ...quote,
+                reactions: {
+                  ...quote.reactions,
+                  [reactionName]: (quote.reactions[reactionName] || 1) - 1,
+                },
+              }
+            : quote
+        )
+      );
+      console.error('Error updating reaction:', error);
     }
   };
 
@@ -186,6 +239,20 @@ function App() {
                 <p className="m-0 text-gray-700">
                   <span className="font-bold text-blue-600">{item.name}:</span> {item.quote}
                 </p>
+                <div className="flex space-x-4 mt-4">
+                  {Object.entries(reactionIcons).map(([reactionName, Icon]) => (
+                    <button
+                      key={reactionName}
+                      onClick={() => handleReaction(item.id, reactionName)}
+                      className="flex items-center text-gray-500 hover:text-indigo-600 transition-colors"
+                    >
+                      <Icon className="w-5 h-5 mr-1" />
+                      <span className="text-sm font-medium">
+                        {item.reactions[reactionName] || 0}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             ))
           ) : (
@@ -195,6 +262,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;
