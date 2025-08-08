@@ -14,8 +14,7 @@ phases:
 
   pre_build:
     commands:
-      - echo "The backend API host is: $REACT_APP_API_HOST"
-      - echo "Building..."
+      - echo "The backend API host is $REACT_APP_API_HOST"
 
   # The 'build' phase actually builds the React application.
   build:
