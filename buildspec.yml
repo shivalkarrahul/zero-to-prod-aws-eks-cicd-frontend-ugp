@@ -14,8 +14,6 @@ phases:
 
   pre_build:
     commands:
-      # This command prints the value of the environment variable to the logs.
-      # You can check the CodeBuild logs to confirm it's correct.
       - echo "The backend API host is: $REACT_APP_API_HOST"
       - echo "Building..."
 
