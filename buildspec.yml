@@ -4,9 +4,14 @@ phases:
   # The 'install' phase is for installing all necessary dependencies.
   install:
     commands:
-      # This command installs all packages listed in your package.json,
-      # including axios and react-icons. It is crucial to run this
-      # before the build process starts.
+      # We first add the local node_modules bin directory to the PATH.
+      # This ensures that commands like 'react-scripts' can be found.
+      - echo "Adding node_modules/.bin to PATH..."
+      - export PATH="$PATH:$PWD/node_modules/.bin"
+      
+      # This command installs all packages listed in your package.json.
+      # This is crucial to run before the build process starts.
+      # Ensure that 'react-scripts' is listed as a devDependency in your package.json.
       - echo "Installing all npm dependencies..."
       - npm install
   
