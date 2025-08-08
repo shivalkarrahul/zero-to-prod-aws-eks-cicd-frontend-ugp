@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import QRCode from 'react-qr-code';
 
-// IMPORTANT: Replace this with your actual NGINX Ingress Load Balancer URL.
-const backendApiBaseUrl = process.env.REACT_APP_API_HOST || 'http://localhost:5000';
+// Get the API host from the environment variable.
+let backendApiBaseUrl = process.env.REACT_APP_API_HOST || 'http://localhost:5000';
+
+// A crucial check: ensure the URL has a protocol.
+// If the environment variable from SSM only contains the hostname,
+// this will prepend `http://` to make it a valid absolute URL.
+if (!backendApiBaseUrl.startsWith('http://') && !backendApiBaseUrl.startsWith('https://')) {
+  backendApiBaseUrl = `http://${backendApiBaseUrl}`;
+}
+
 const quotesApiUrl = `${backendApiBaseUrl}/messages`;
 
 console.log('Using backend API URL:', backendApiBaseUrl);
