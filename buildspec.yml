@@ -15,6 +15,16 @@ phases:
       - echo "Installing all npm dependencies..."
       - npm install
   
+  # The 'pre_build' phase is for running pre-build tasks like linting and testing.
+  # This is a great place to fail the build early if code quality standards aren't met.
+  pre_build:
+    commands:
+      # Run linting to check for code style issues and potential errors.
+      # The command `npm run lint` will now be executed here.
+      # If linting fails, the build will stop here, preventing bad code from being deployed.
+      - echo "Running code linting..."
+      - npm run lint        
+
   # The 'build' phase is for compiling your code.
   build:
     commands:
