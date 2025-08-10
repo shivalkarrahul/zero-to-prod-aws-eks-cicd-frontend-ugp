@@ -24,8 +24,12 @@ const quotesApiUrl = `${backendApiBaseUrl}/messages`;
 // -----------------------------------------------------------
 const gitRevision = process.env.REACT_APP_GIT_REVISION || 'N/A';
 
+// Access the build time provided by the build process.
+const buildTime = process.env.REACT_APP_BUILD_TIME || 'N/A'; // <-- NEW CONSTANT
+
 console.log('Using backend API URL:', backendApiBaseUrl);
 console.log('App Version (Git Revision):', gitRevision);
+console.log('Build Time:', buildTime); // <-- NEW CONSOLE LOG
 
 const App = () => {
   const [quotes, setQuotes] = useState([]);
@@ -299,6 +303,9 @@ const App = () => {
           <p>
             Frontend Version: {gitRevision}
           </p>
+          <p>
+            Frontend Build Time: {buildTime}
+          </p>          
         </div>
         {/* ----------------------------------------------------------- */}
         
