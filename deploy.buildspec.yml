@@ -10,7 +10,7 @@ phases:
       - echo "Deploying build artifacts to S3 bucket $S3_BUCKET_NAME..."
       # The source for the sync command is the root of the artifact,
       # which is the 'build' directory we packaged earlier.
-      - aws s3 sync . s3://$S3_BUCKET_NAME --delete
+      - aws s3 sync ./BuildArtifact . s3://$S3_BUCKET_NAME --delete
 
 artifacts:
   # This deployment stage doesn't produce any new artifacts, so we don't define this.
