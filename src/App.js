@@ -16,7 +16,16 @@ if (!backendApiBaseUrl.startsWith('http://') && !backendApiBaseUrl.startsWith('h
 }
 const quotesApiUrl = `${backendApiBaseUrl}/messages`;
 
+// -----------------------------------------------------------
+// NEW CODE ADDED FOR VERSIONING
+// Access the Git revision provided by the build process.
+// Fallback to 'N/A' if the environment variable is not set.
+// You must have updated your buildspec.yml for this to work.
+// -----------------------------------------------------------
+const gitRevision = process.env.REACT_APP_GIT_REVISION || 'N/A';
+
 console.log('Using backend API URL:', backendApiBaseUrl);
+console.log('App Version (Git Revision):', gitRevision);
 
 const App = () => {
   const [quotes, setQuotes] = useState([]);
@@ -282,6 +291,17 @@ const App = () => {
             <p className="text-center text-gray-500">No quotes yet. Generate one now!</p>
           )}
         </div>
+
+        {/* ----------------------------------------------------------- */}
+        {/* MODIFIED CODE: The Git revision is now plain text, not a link. */}
+        {/* ----------------------------------------------------------- */}
+        <div className="mt-8 text-center text-gray-500 text-sm">
+          <p>
+            Frontend Version: {gitRevision}
+          </p>
+        </div>
+        {/* ----------------------------------------------------------- */}
+        
       </div>
     </div>
   );

@@ -11,7 +11,11 @@ phases:
   pre_build:
     commands:
       - echo "Running code linting..."
-      - npm run lint        
+      - npm run lint
+      - echo "Getting Git commit hash..."
+      - COMMIT_HASH=$(git rev-parse --short HEAD)
+      - echo "REACT_APP_GIT_REVISION=$COMMIT_HASH" > .env.production.local
+      - cat .env.production.local              
 
   build:
     commands:
