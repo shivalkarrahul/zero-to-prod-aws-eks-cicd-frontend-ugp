@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  # The 'install' phase is not needed as we are only deploying.
+  # We just need the AWS CLI, which is pre-installed in the CodeBuild image.
+
+  # The 'build' phase is where the deployment logic goes.
+  build:
+    commands:
+      - echo "Deploying build artifacts to S3 bucket $S3_BUCKET_NAME..."
+      # The source for the sync command is the root of the artifact,
+      # which is the 'build' directory we packaged earlier.
+      - aws s3 sync . s3://$S3_BUCKET_NAME --delete
+
+artifacts:
+  # This deployment stage doesn't produce any new artifacts, so we don't define this.
+  # But if you wanted to, for example, output a deployment manifest, you could.
+  # This block can be omitted if there are no artifacts to be created.
