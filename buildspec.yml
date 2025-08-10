@@ -20,8 +20,8 @@ phases:
       - echo "Frontend version (Git Revision) will be $REACT_APP_GIT_REVISION"
       # The export command makes this variable available to the next build step.
       - export TZ="Asia/Kolkata"
-      - export BUILD_TIMESTAMP_IST=$(date +"%A, %d %B %Y, %r IST")
-      - echo "Build started at - $BUILD_TIMESTAMP_IST"          
+      - export REACT_APP_BUILD_TIMESTAMP_IST=$(date +"%A, %d %B %Y, %r IST")
+      - echo "Build started at - $REACT_APP_BUILD_TIMESTAMP_IST"          
 
   build:
     commands:

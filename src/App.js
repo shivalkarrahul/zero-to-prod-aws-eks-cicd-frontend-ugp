@@ -25,7 +25,7 @@ const quotesApiUrl = `${backendApiBaseUrl}/messages`;
 const gitRevision = process.env.REACT_APP_GIT_REVISION || 'N/A';
 
 // Access the build time provided by the build process.
-const buildTime = process.env.BUILD_TIMESTAMP_IST || 'N/A'; // <-- NEW CONSTANT
+const buildTime = process.env.REACT_APP_BUILD_TIMESTAMP_IST || 'N/A'; // <-- NEW CONSTANT
 
 console.log('Using backend API URL:', backendApiBaseUrl);
 console.log('App Version (Git Revision):', gitRevision);
