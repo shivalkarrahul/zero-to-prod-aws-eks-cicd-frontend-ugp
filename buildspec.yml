@@ -19,7 +19,9 @@ phases:
       - export REACT_APP_GIT_REVISION=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-8)
       - echo "Frontend version (Git Revision) will be $REACT_APP_GIT_REVISION"
       # The export command makes this variable available to the next build step.
-      - export REACT_APP_BUILD_TIME=$(date +"%Y-%m-%d %H:%M:%S %Z")          
+      - export TZ="Asia/Kolkata"
+      - export BUILD_TIMESTAMP_IST=$(date +"%A, %d %B %Y, %r IST")
+      - echo "Build started at - $BUILD_TIMESTAMP_IST"          
 
   build:
     commands:
