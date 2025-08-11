@@ -10,15 +10,9 @@ phases:
   
   pre_build:
     commands:
-      - echo "Running code linting..."
-      - npm run lint
       - echo "Getting Git commit hash from CodeBuild environment variable..."
-      # Use the CodeBuild environment variable to get the commit hash.
-      # This is the reliable way to get the version inside CodeBuild.
-      # We cut it to the first 8 characters for a short hash, similar to your original approach.
       - export REACT_APP_GIT_REVISION=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-8)
       - echo "Frontend version (Git Revision) will be $REACT_APP_GIT_REVISION"
-      # The export command makes this variable available to the next build step.
       - export TZ="Asia/Kolkata"
       - export REACT_APP_BUILD_TIMESTAMP_IST=$(date +"%A, %d %B %Y, %r IST")
       - echo "Build started at - $REACT_APP_BUILD_TIMESTAMP_IST"          
@@ -28,7 +22,6 @@ phases:
       - echo "Running the build command..."
       - npm run build:css && react-scripts build
 
-# 'artifacts' defines which files to upload to S3 from the build.
 artifacts:
   files:
     - '**/*'

@@ -1,0 +1,14 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Adding node_modules/.bin to PATH..."
+      - export PATH="$PATH:$PWD/node_modules/.bin"
+      - echo "Installing all npm dependencies..."
+      - npm install
+  
+  build:
+    commands:
+      - echo "Running code linting..."
+      - npm run lint
