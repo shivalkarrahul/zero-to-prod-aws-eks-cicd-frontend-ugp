@@ -184,7 +184,7 @@ const App = () => {
         {appUrl && (
           <div className="p-6 mb-6 bg-blue-50 rounded-xl border border-blue-100 shadow-sm flex flex-col items-center">
             <h2 className="text-xl font-bold text-gray-800 mb-4">
-              Scan to Share!
+              Scan to Access and Share! 
             </h2>
             <div className="p-2 bg-white rounded-lg border border-gray-200">
               <QRCode
